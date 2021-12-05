@@ -25,9 +25,9 @@ class ShowContents(SampleBase):
         super(ShowContents, self).__init__(*args, **kwargs)
 
         #表示するためのイメージデータが入る変数(RGBに変換後のもの)
-        self.line_1_image = None
-        self.line_2_image = None
-        self.line_3_image = None
+        self.line_1_image_etc = None
+        self.line_2_image_etc = None
+        self.line_3_image_etc = None
 
     def load_image(self):
         """
@@ -37,9 +37,11 @@ class ShowContents(SampleBase):
         4.そのリストをファイル数分結合したリストを作る
         5.4までの処理を各Dir分行う
         """
-        
+        #ディレクトリのリスト
         line_dir_list = ["Line1", "Line2", "Line3"]
+        #各ディレクトリごとのイメージデータなどを格納したリスト
         display_information_data_dir = []
+        #全ディレクトリのイメージデータなどを格納したリスト(多ネストリストになってる)
         display_information_data = []
 
         for dir in line_dir_list:
@@ -61,81 +63,96 @@ class ShowContents(SampleBase):
             display_information_data_dir.append(display_seconds)
             display_information_data_dir.append(image)
 
+            display_information_data.append(display_information_data_dir)
+
             #print(files)
             #print(display_seconds)
             #print(image)
 
-        display_information_data.append(display_information_data_dir)
         print(display_information_data)
 
+        self.line_1_image_etc = display_information_data[0]
+        self.line_2_image_etc = display_information_data[1]
+        self.line_3_image_etc = display_information_data[2]       
 
-
-            #self.line_1_image = Image.open(self.args.image1).convert('RGB')
 
     def draw_image(self):
         image_buffer = self.matrix.CreateFrameCanvas()
         
         #描画部分
-        def line_1_set_image(image_buffer, line_1_image):
+        def line_1_set_image(image_buffer, line_1_image_etc):
             #スクロール表示
 
+            selecting_drawing_image = 0
             line1_x_pos = 0
-            img_width, img_height = line_1_image.size
 
             while True:
+                line_1_image = line_1_image_etc[2][selecting_drawing_image]
+                img_width, img_height = line_1_image.size
+
                 line1_x_pos += 1
                 if (line1_x_pos > img_width):
                     line1_x_pos = 0
+                    selecting_drawing_image += 1
 
                 image_buffer.SetImage(line_1_image, -line1_x_pos, LINE_1_START_Y_POS)
                 image_buffer.SetImage(line_1_image, -line1_x_pos + img_width, LINE_1_START_Y_POS)
 
                 time.sleep(TEXT_SCROLL_SPEED)
 
-        def line_2_set_image(image_buffer, line_2_image):
+        def line_2_set_image(image_buffer, line_2_image_etc):
             #切り替え表示
 
+            selecting_drawing_image = 0
             line2_x_pos = 0
-            img_width, img_height = line_2_image.size
 
             while True:
+                line_2_image = line_2_image_etc[2][selecting_drawing_image]
+                img_width, img_height = line_2_image.size
+
                 line2_x_pos += 1
                 if (line2_x_pos > img_width):
                     line2_x_pos = 0
+                    selecting_drawing_image += 1
 
                 image_buffer.SetImage(line_2_image, -line2_x_pos, LINE_2_START_Y_POS)
                 image_buffer.SetImage(line_2_image, -line2_x_pos + img_width, LINE_2_START_Y_POS)
 
                 time.sleep(TEXT_SCROLL_SPEED)
 
-        def line_3_set_image(image_buffer, line_3_image):
+        def line_3_set_image(image_buffer, line_3_image_etc):
             #スクロール表示
 
+            selecting_drawing_image = 0
             line3_x_pos = 0
-            img_width, img_height = line_3_image.size
 
             while True:
+                line_3_image = line_3_image_etc[2][selecting_drawing_image]
+                img_width, img_height = line_3_image.size
+
                 line3_x_pos += 1
                 if (line3_x_pos > img_width):
                     line3_x_pos = 0
+                    selecting_drawing_image += 1
 
                 image_buffer.SetImage(line_3_image, -line3_x_pos, LINE_3_START_Y_POS)
                 image_buffer.SetImage(line_3_image, -line3_x_pos + img_width, LINE_3_START_Y_POS)
 
                 time.sleep(TEXT_SCROLL_SPEED)
 
+
         def all_line_draw_image(image_buffer):
             while True:
                 image_buffer = self.matrix.SwapOnVSync(image_buffer)
 
-        thread_line_1 = threading.Thread(target=line_1_set_image, args=(image_buffer,self.line_1_image))
+        thread_line_1 = threading.Thread(target=line_1_set_image, args=(image_buffer,self.line_1_image_etc))
         thread_line_1.start()
 
-        thread_line_2 = threading.Thread(target=line_2_set_image, args=(image_buffer,self.line_2_image))
+        thread_line_2 = threading.Thread(target=line_2_set_image, args=(image_buffer,self.line_2_image_etc))
         thread_line_2.start()         
 
-        thread_line_3 = threading.Thread(target=line_3_set_image, args=(image_buffer,self.line_3_image))
-        thread_line_3.start()    
+        #thread_line_3 = threading.Thread(target=line_3_set_image, args=(image_buffer,self.line_3_image_etc))
+        #thread_line_3.start()    
 
         thread_line_draw = threading.Thread(target=all_line_draw_image, args=(image_buffer,))
         thread_line_draw.start()        
