@@ -4,6 +4,7 @@ from samplebase import SampleBase
 from PIL import Image
 import threading
 import os
+from natsort import natsorted
 
 #line_1　【表示1行目】16x32 RGBLED
 #line_2　【表示2行目】32x64 RGBLEDの「1行目 16x64」
@@ -29,9 +30,47 @@ class ShowContents(SampleBase):
         self.line_3_image = None
 
     def load_image(self):
-        number_of_files = sum(os.path.isfile(os.path.join(DIR, name)) for name in os.listdir(DIR))
-        self.line_1_image = Image.open(self.args.image1).convert('RGB')
-        #self.line_2_image = Image.open(self.args.image2).convert('RGB')
+        """
+        1.各lineごとのdirに入る
+        2.ファイル一覧を取得し、頭文字を用いてソート
+        3.ソートした順番で画像ファイルのオープンを行い画像ファイル・表示秒数を切り出したリストを作成
+        4.そのリストをファイル数分結合したリストを作る
+        5.4までの処理を各Dir分行う
+        """
+        
+        line_dir_list = ["Line1", "Line2", "Line3"]
+        display_information_data_dir = []
+        display_information_data = []
+
+        for dir in line_dir_list:
+            display_seconds = []
+            image = []
+
+            line_dir = os.path.join(IMAGE_DIR_PASS, dir) #各LineごとのDir名作成
+            dir_files = os.listdir(line_dir) #上記Dir内の物をリスト化
+            files = [f for f in dir_files if os.path.isfile(os.path.join(line_dir, f))] #Dirの中からファイルのものをリスト化
+            files = natsorted(files) #頭文字順にリストを整列
+
+            for file in files: #各Dir内の各ファイルに対しての操作
+                file_name_splited = file.split("_") #表示秒数読み出し
+                display_seconds.append(file_name_splited[1]) #表示秒数をリスト化
+
+                image.append(Image.open(os.path.join(line_dir, file)).convert('RGB')) #画像のオープン処理とそれをリストに入れる
+            
+            display_information_data_dir.append(files)
+            display_information_data_dir.append(display_seconds)
+            display_information_data_dir.append(image)
+
+            #print(files)
+            #print(display_seconds)
+            #print(image)
+
+        display_information_data.append(display_information_data_dir)
+        print(display_information_data)
+
+
+
+            #self.line_1_image = Image.open(self.args.image1).convert('RGB')
 
     def draw_image(self):
         image_buffer = self.matrix.CreateFrameCanvas()
