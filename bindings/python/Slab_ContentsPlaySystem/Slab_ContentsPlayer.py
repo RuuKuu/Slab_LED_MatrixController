@@ -45,6 +45,8 @@ class ShowContents(SampleBase):
         display_information_data = []
 
         for dir in line_dir_list:
+            display_information_data_dir = []
+            files = []
             display_seconds = []
             image = []
 
@@ -65,7 +67,8 @@ class ShowContents(SampleBase):
 
             display_information_data.append(display_information_data_dir)
 
-            #print(files)
+            #print(display_information_data_dir)
+            #print("---------------------------------------------")
             #print(display_seconds)
             #print(image)
 
@@ -75,6 +78,7 @@ class ShowContents(SampleBase):
         self.line_2_image_etc = display_information_data[1]
         self.line_3_image_etc = display_information_data[2]       
 
+        print(display_information_data[1])
 
     def draw_image(self):
         image_buffer = self.matrix.CreateFrameCanvas()
