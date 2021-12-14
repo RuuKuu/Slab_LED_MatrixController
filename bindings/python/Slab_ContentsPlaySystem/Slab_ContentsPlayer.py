@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 import time
 from samplebase import SampleBase
+from rgbmatrix import graphics
+from datetime import datetime
+import time
 from PIL import Image
 import threading
 import os
 from natsort import natsorted
+import schedule
 
-
-#line_1　【表示1行目】32x64 RGBLEDの「1行目 16x64」
-#line_2　【表示2行目】32x64 RGBLEDの「2行目 16x64」
+#line_1　【表示1行目】32x64 RGBLEDの「1行目 12x64」
+#line_2　【表示2行目】32x64 RGBLEDの「2行目 20x64」
 
 LINE_1_START_Y_POS:int = 0
-LINE_2_START_Y_POS:int = 16
+LINE_2_START_Y_POS:int = 12
 
 TEXT_SCROLL_SPEED = 0.01
 
@@ -25,6 +28,8 @@ class ShowContents(SampleBase):
         #表示するためのイメージデータ等のデータが入る変数(RGBに変換後のもの)
         self.line_1_image_etc = None
         self.line_2_image_etc = None
+
+        schedule.every(5).minutes.do(self.load_image)
 
     def load_image(self):
         """
@@ -86,28 +91,35 @@ class ShowContents(SampleBase):
             selecting_drawing_image = 0
             line1_x_pos = 0
 
+            font = graphics.Font()
+            font.LoadFont("../../fonts/6x13.bdf")
+            textColor = graphics.Color(100, 100, 255)
+
             while True:
                 line_1_image = line_1_image_etc[2][selecting_drawing_image]
-                display_seconds = line_1_image_etc[1][selecting_drawing_image]
                 img_width, img_height = line_1_image.size
 
-                #print(selecting_drawing_image)
+                display_seconds = line_1_image_etc[1][selecting_drawing_image]
+                
+                image_buffer.SetImage(line_1_image, -line1_x_pos, LINE_1_START_Y_POS)
+                #image_buffer.SetImage(line_1_image, -line1_x_pos + img_width, LINE_1_START_Y_POS)
 
-                #line1_x_pos += 1
-                #if (line1_x_pos > img_width):
-                #    line1_x_pos = 0
-                #    selecting_drawing_image += 1
+
                 if  selecting_drawing_image == len(line_1_image_etc):
+                    #https://a-tak.com/blog/2017/03/raspberry-pi-led-clock-4/
+                    d = datetime.now()
+                    h = (" " + str(d.hour))[-2:]
+                    #スペースを頭に着けて最後から2文字背取得。1-9時の間も真ん中に時計が表示されるようにする考慮
+                    clock = h + ":" + d.strftime("%M")
+                    len = graphics.DrawText(image_buffer, font, 0, 12, textColor, clock)
+
                     selecting_drawing_image = 0
+                    time.sleep(5)
                 else:
                     selecting_drawing_image += 1
 
-                
-                image_buffer.SetImage(line_1_image, -line1_x_pos, LINE_1_START_Y_POS)
-                image_buffer.SetImage(line_1_image, -line1_x_pos + img_width, LINE_1_START_Y_POS)
-
-
                 time.sleep(int(display_seconds))
+
 
         def line_2_set_image(image_buffer, line_2_image_etc):
             #切り替え表示
@@ -119,6 +131,10 @@ class ShowContents(SampleBase):
                 line_2_image = line_2_image_etc[2][selecting_drawing_image]
                 img_width, img_height = line_2_image.size
 
+
+                image_buffer.SetImage(line_2_image, -line2_x_pos, LINE_2_START_Y_POS)
+                image_buffer.SetImage(line_2_image, -line2_x_pos + img_width, LINE_2_START_Y_POS)
+
                 line2_x_pos += 1
                 if (line2_x_pos > img_width):
                     line2_x_pos = 0
@@ -127,16 +143,14 @@ class ShowContents(SampleBase):
                 if selecting_drawing_image == len(line_2_image_etc)+1:
                     selecting_drawing_image = 0
 
-                image_buffer.SetImage(line_2_image, -line2_x_pos, LINE_2_START_Y_POS)
-                image_buffer.SetImage(line_2_image, -line2_x_pos + img_width, LINE_2_START_Y_POS)
-
                 time.sleep(TEXT_SCROLL_SPEED)
 
 
         def all_line_draw_image(image_buffer):
             while True:
                 image_buffer = self.matrix.SwapOnVSync(image_buffer)
-                #time.sleep(0.001)
+                image_buffer.Clear()
+
 
         thread_line_1 = threading.Thread(target=line_1_set_image, args=(image_buffer,self.line_1_image_etc))
         thread_line_1.start()
@@ -150,6 +164,9 @@ class ShowContents(SampleBase):
     def run(self):
         self.load_image()
         self.draw_image()
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
 
 
 # Main function
