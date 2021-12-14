@@ -11,11 +11,11 @@ from natsort import natsorted
 #line_3　【表示3行目】32x64 RGBLEDの「2行目 16x64」
 
 LINE_1_START_Y_POS:int = 0
-LINE_2_START_Y_POS:int = 8
+LINE_2_START_Y_POS:int = 16
 #16
 LINE_3_START_Y_POS:int = 32
 
-TEXT_SCROLL_SPEED = 0.02
+TEXT_SCROLL_SPEED = 0.01
 
 IMAGE_DIR_PASS = "/home/pi/ElectricBoardContentsFolder"
 
@@ -92,17 +92,26 @@ class ShowContents(SampleBase):
 
             while True:
                 line_1_image = line_1_image_etc[2][selecting_drawing_image]
+                display_seconds = line_1_image_etc[1][selecting_drawing_image]
                 img_width, img_height = line_1_image.size
 
-                line1_x_pos += 1
-                if (line1_x_pos > img_width):
-                    line1_x_pos = 0
+                #print(selecting_drawing_image)
+
+                #line1_x_pos += 1
+                #if (line1_x_pos > img_width):
+                #    line1_x_pos = 0
+                #    selecting_drawing_image += 1
+                if  selecting_drawing_image == len(line_1_image_etc):
+                    selecting_drawing_image = 0
+                else:
                     selecting_drawing_image += 1
 
+                
                 image_buffer.SetImage(line_1_image, -line1_x_pos, LINE_1_START_Y_POS)
                 image_buffer.SetImage(line_1_image, -line1_x_pos + img_width, LINE_1_START_Y_POS)
 
-                time.sleep(TEXT_SCROLL_SPEED)
+
+                time.sleep(int(display_seconds))
 
         def line_2_set_image(image_buffer, line_2_image_etc):
             #切り替え表示
@@ -118,6 +127,9 @@ class ShowContents(SampleBase):
                 if (line2_x_pos > img_width):
                     line2_x_pos = 0
                     selecting_drawing_image += 1
+                
+                if selecting_drawing_image == len(line_2_image_etc)+1:
+                    selecting_drawing_image = 0
 
                 image_buffer.SetImage(line_2_image, -line2_x_pos, LINE_2_START_Y_POS)
                 image_buffer.SetImage(line_2_image, -line2_x_pos + img_width, LINE_2_START_Y_POS)
@@ -142,12 +154,15 @@ class ShowContents(SampleBase):
                 image_buffer.SetImage(line_3_image, -line3_x_pos, LINE_3_START_Y_POS)
                 image_buffer.SetImage(line_3_image, -line3_x_pos + img_width, LINE_3_START_Y_POS)
 
+                image_buffer = self.matrix.SwapOnVSync(image_buffer)
+
                 time.sleep(TEXT_SCROLL_SPEED)
 
 
         def all_line_draw_image(image_buffer):
             while True:
                 image_buffer = self.matrix.SwapOnVSync(image_buffer)
+                #time.sleep(0.001)
 
         thread_line_1 = threading.Thread(target=line_1_set_image, args=(image_buffer,self.line_1_image_etc))
         thread_line_1.start()
