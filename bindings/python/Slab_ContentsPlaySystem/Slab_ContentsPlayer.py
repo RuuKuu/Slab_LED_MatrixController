@@ -105,7 +105,7 @@ class ShowContents(SampleBase):
                 #image_buffer.SetImage(line_1_image, -line1_x_pos + img_width, LINE_1_START_Y_POS)
 
 
-                if  selecting_drawing_image == len(line_1_image_etc):
+                if  selecting_drawing_image == len(line_1_image_etc)+1:
                     #https://a-tak.com/blog/2017/03/raspberry-pi-led-clock-4/
                     d = datetime.now()
                     h = (" " + str(d.hour))[-2:]
@@ -137,7 +137,7 @@ class ShowContents(SampleBase):
                 image_buffer.SetImage(line_2_image, -line2_x_pos + img_width, LINE_2_START_Y_POS)
 
                 line2_x_pos += 1
-                if (line2_x_pos > img_width):
+                if (line2_x_pos > img_width-64):
                     line2_x_pos = 0
                     selecting_drawing_image += 1
                 
