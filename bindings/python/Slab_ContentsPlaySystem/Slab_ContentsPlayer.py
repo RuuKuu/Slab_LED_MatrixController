@@ -92,7 +92,7 @@ class ShowContents(SampleBase):
             line1_x_pos = 0
 
             font = graphics.Font()
-            font.LoadFont("../../fonts/6x13.bdf")
+            font.LoadFont("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf")
             textColor = graphics.Color(100, 100, 255)
 
             while True:
@@ -111,7 +111,8 @@ class ShowContents(SampleBase):
                     h = (" " + str(d.hour))[-2:]
                     #スペースを頭に着けて最後から2文字背取得。1-9時の間も真ん中に時計が表示されるようにする考慮
                     clock = h + ":" + d.strftime("%M")
-                    len = graphics.DrawText(image_buffer, font, 0, 12, textColor, clock)
+                    print(clock)
+                    graphics.DrawText(image_buffer, font, 0, 12, textColor, clock)
 
                     selecting_drawing_image = 0
                     time.sleep(5)
@@ -149,7 +150,7 @@ class ShowContents(SampleBase):
         def all_line_draw_image(image_buffer):
             while True:
                 image_buffer = self.matrix.SwapOnVSync(image_buffer)
-                image_buffer.Clear()
+                #image_buffer.Clear()
 
 
         thread_line_1 = threading.Thread(target=line_1_set_image, args=(image_buffer,self.line_1_image_etc))
