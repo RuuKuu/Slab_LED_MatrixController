@@ -79,7 +79,6 @@ class ShowContents(SampleBase):
         self.line_1_image_etc = display_information_data[0]
         self.line_2_image_etc = display_information_data[1]
 
-        print(display_information_data[1])
 
     def draw_image(self):
         image_buffer = self.matrix.CreateFrameCanvas()
@@ -150,7 +149,6 @@ class ShowContents(SampleBase):
         def all_line_draw_image(image_buffer):
             while True:
                 image_buffer = self.matrix.SwapOnVSync(image_buffer)
-                #image_buffer.Clear()
 
 
         thread_line_1 = threading.Thread(target=line_1_set_image, args=(image_buffer,self.line_1_image_etc))
