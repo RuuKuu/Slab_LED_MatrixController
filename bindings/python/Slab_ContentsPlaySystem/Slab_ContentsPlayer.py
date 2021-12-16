@@ -82,9 +82,11 @@ class ShowContents(SampleBase):
 
     def draw_image(self):
         image_buffer = self.matrix.CreateFrameCanvas()
+        line_1_image_etc = self.line_1_image_etc
+        line_2_image_etc = self.line_2_image_etc
         
         #描画部分
-        def line_1_set_image(image_buffer, line_1_image_etc):
+        def line_1_set_image():
             #スクロール表示
 
             selecting_drawing_image = 0
@@ -121,7 +123,7 @@ class ShowContents(SampleBase):
                 time.sleep(int(display_seconds))
 
 
-        def line_2_set_image(image_buffer, line_2_image_etc):
+        def line_2_set_image():
             #切り替え表示
 
             selecting_drawing_image = 0
@@ -146,19 +148,19 @@ class ShowContents(SampleBase):
                 time.sleep(TEXT_SCROLL_SPEED)
 
 
-        def all_line_draw_image(image_buffer):
+        def all_line_draw_image():
             while True:
                 image_buffer = self.matrix.SwapOnVSync(image_buffer)
 
 
-        thread_line_1 = threading.Thread(target=line_1_set_image, args=(image_buffer,self.line_1_image_etc))
+        thread_line_1 = threading.Thread(target=line_1_set_image)
         thread_line_1.start()
 
-        thread_line_2 = threading.Thread(target=line_2_set_image, args=(image_buffer,self.line_2_image_etc))
+        thread_line_2 = threading.Thread(target=line_2_set_image)
         thread_line_2.start()          
 
-        thread_line_draw = threading.Thread(target=all_line_draw_image, args=(image_buffer,))
-        thread_line_draw.start()        
+        thread_line_draw = threading.Thread(target=all_line_draw_image)
+        thread_line_draw.start()
 
     def run(self):
         self.load_image()
