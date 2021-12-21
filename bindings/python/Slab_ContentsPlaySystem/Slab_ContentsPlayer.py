@@ -13,21 +13,25 @@ import schedule
 #line_1　【表示1行目】32x64 RGBLEDの「1行目 12x64」
 #line_2　【表示2行目】32x64 RGBLEDの「2行目 20x64」
 
-LINE_1_START_Y_POS:int = 0
-LINE_2_START_Y_POS:int = 12
-
-TEXT_SCROLL_SPEED = 0.01
-
-IMAGE_DIR_PASS = "/home/pi/ElectricBoardContentsFolder"
-
 
 class ShowContents(SampleBase):
+
+    LINE_1_START_Y_POS:int = 0
+    LINE_2_START_Y_POS:int = 12
+
+    TEXT_SCROLL_SPEED = 0.01
+
+    IMAGE_DIR_PASS = "/home/pi/ElectricBoardContentsFolder"
+
+    line_1_image_etc = None
+    line_2_image_etc = None
+
     def __init__(self, *args, **kwargs):
         super(ShowContents, self).__init__(*args, **kwargs)
 
         #表示するためのイメージデータ等のデータが入る変数(RGBに変換後のもの)
-        self.line_1_image_etc = None
-        self.line_2_image_etc = None
+        #self.line_1_image_etc = None
+        #self.line_2_image_etc = None
 
         schedule.every(5).minutes.do(self.load_image)
 
@@ -52,7 +56,7 @@ class ShowContents(SampleBase):
             display_seconds = []
             image = []
 
-            line_dir = os.path.join(IMAGE_DIR_PASS, dir) #各LineごとのDir名作成
+            line_dir = os.path.join(ShowContents.IMAGE_DIR_PASS, dir) #各LineごとのDir名作成
             dir_files = os.listdir(line_dir) #上記Dir内の物をリスト化
             files = [f for f in dir_files if os.path.isfile(os.path.join(line_dir, f))] #Dirの中からファイルのものをリスト化
             files = natsorted(files) #頭文字順にリストを整列
@@ -76,23 +80,26 @@ class ShowContents(SampleBase):
 
         print(display_information_data)
 
-        self.line_1_image_etc = display_information_data[0]
-        self.line_2_image_etc = display_information_data[1]
+        #self.line_1_image_etc = display_information_data[0]
+        #self.line_2_image_etc = display_information_data[1]
+
+        ShowContents.line_1_image_etc = display_information_data[0]
+        ShowContents.line_2_image_etc = display_information_data[1]
 
 
     def draw_image(self):
-        global line_1_image_etc
-        global line_2_image_etc
+        #global line_1_image_etc
+        #global line_2_image_etc
 
         image_buffer = self.matrix.CreateFrameCanvas()
-        line_1_image_etc = self.line_1_image_etc
-        line_2_image_etc = self.line_2_image_etc
+        #ShowContents.line_1_image_etc = self.line_1_image_etc
+        #ShowContents.line_2_image_etc = self.line_2_image_etc
         
         #描画部分
         def line_1_set_image(image_buffer):
             #スクロール表示
             #global image_buffer
-            global line_1_image_etc
+            #global line_1_image_etc
 
             selecting_drawing_image = 0
             line1_x_pos = 0
@@ -102,16 +109,16 @@ class ShowContents(SampleBase):
             textColor = graphics.Color(100, 100, 255)
 
             while True:
-                line_1_image = line_1_image_etc[2][selecting_drawing_image]
+                line_1_image = ShowContents.line_1_image_etc[2][selecting_drawing_image]
                 img_width, img_height = line_1_image.size
 
-                display_seconds = line_1_image_etc[1][selecting_drawing_image]
+                display_seconds = ShowContents.line_1_image_etc[1][selecting_drawing_image]
                 
-                image_buffer.SetImage(line_1_image, -line1_x_pos, LINE_1_START_Y_POS)
+                image_buffer.SetImage(line_1_image, -line1_x_pos, ShowContents.LINE_1_START_Y_POS)
                 #image_buffer.SetImage(line_1_image, -line1_x_pos + img_width, LINE_1_START_Y_POS)
 
 
-                if  selecting_drawing_image == len(line_1_image_etc)+1:
+                if  selecting_drawing_image == len(ShowContents.line_1_image_etc)+1:
                     #https://a-tak.com/blog/2017/03/raspberry-pi-led-clock-4/
                     d = datetime.now()
                     h = (" " + str(d.hour))[-2:]
@@ -131,28 +138,28 @@ class ShowContents(SampleBase):
         def line_2_set_image(image_buffer):
             #切り替え表示
             #global image_buffer
-            global line_2_image_etc
+            #global line_2_image_etc
 
             selecting_drawing_image = 0
             line2_x_pos = 0
 
             while True:
-                line_2_image = line_2_image_etc[2][selecting_drawing_image]
+                line_2_image = ShowContents.line_2_image_etc[2][selecting_drawing_image]
                 img_width, img_height = line_2_image.size
 
 
-                image_buffer.SetImage(line_2_image, -line2_x_pos, LINE_2_START_Y_POS)
-                image_buffer.SetImage(line_2_image, -line2_x_pos + img_width, LINE_2_START_Y_POS)
+                image_buffer.SetImage(line_2_image, -line2_x_pos, ShowContents.LINE_2_START_Y_POS)
+                image_buffer.SetImage(line_2_image, -line2_x_pos + img_width, ShowContents.LINE_2_START_Y_POS)
 
                 line2_x_pos += 1
                 if (line2_x_pos > img_width-64):
                     line2_x_pos = 0
                     selecting_drawing_image += 1
                 
-                if selecting_drawing_image == len(line_2_image_etc)+1:
+                if selecting_drawing_image == len(ShowContents.line_2_image_etc)+1:
                     selecting_drawing_image = 0
 
-                time.sleep(TEXT_SCROLL_SPEED)
+                time.sleep(ShowContents.TEXT_SCROLL_SPEED)
 
 
         def all_line_draw_image(image_buffer):
