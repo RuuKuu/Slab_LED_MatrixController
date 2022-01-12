@@ -33,7 +33,7 @@ class ShowContents(SampleBase):
         #self.line_1_image_etc = None
         #self.line_2_image_etc = None
 
-        schedule.every(5).minutes.do(self.load_image)
+        schedule.every(2).minutes.do(self.load_image)
 
     def load_image(self):
         """
