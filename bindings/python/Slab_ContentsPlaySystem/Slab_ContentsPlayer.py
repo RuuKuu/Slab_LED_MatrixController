@@ -169,7 +169,7 @@ class ShowContents(SampleBase):
                     time_str = h + ":" + dt_now.strftime("%M")
 
                     date_str = "   " + date_str + "       "
-                    time_str = "   " + time_str + "       "
+                    time_str = "  " + time_str + "       "
                     temp_str = "気温:" + str(ShowContents.Temp) + "   "
                     humidity_str = "湿度:" + str(ShowContents.Humidity) + "   "
                     heatindex_str = "体感:" + str(ShowContents.HeatIndex) + "   "
