@@ -1,0 +1,13 @@
+[Unit]
+Description = Sonodalab-ElectricBulletinBoard
+After=local-fs.target
+ConditionPathExists=~/Slab_LED_MatrixController/bindings/python/Slab_ContentsPlaySystem
+
+[Service]
+ExecStart=~/Slab_LED_MatrixController/bindings/python/Slab_ContentsPlaySystem/autostart.sh
+Restart=no
+Type=simple
+
+
+[Install]
+WantedBy=multi-user.target

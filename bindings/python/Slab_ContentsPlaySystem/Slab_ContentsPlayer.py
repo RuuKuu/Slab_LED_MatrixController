@@ -40,7 +40,7 @@ class ShowContents(SampleBase):
     def __init__(self, *args, **kwargs):
         super(ShowContents, self).__init__(*args, **kwargs)
 
-        schedule.every(2).minutes.do(self.load_image)
+        schedule.every(3).minutes.do(self.load_image)
         schedule.every(1).minutes.do(self.read_sensor)
 
     def load_image(self):
@@ -92,13 +92,18 @@ class ShowContents(SampleBase):
         ShowContents.line_2_image_etc = display_information_data[1]
 
     def read_sensor(self):
-        ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=2)
-        sensor_rowdata = ser.readline()
-        ser.close()
+        try:
+            ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=2)
+            sensor_rowdata = ser.readline()
+            ser.close()
 
-        sensor_data = sensor_rowdata.decode("utf-8")
+            sensor_data = sensor_rowdata.decode("utf-8")
 
-        sensor_data_list = sensor_data.split()
+            sensor_data_list = sensor_data.split()
+        
+        except:
+            sensor_data_list = []
+            sensor_data_list.append("Error")
 
         if sensor_data_list[0] == "Data:":
             ShowContents.Temp = sensor_data_list[2]
@@ -169,7 +174,7 @@ class ShowContents(SampleBase):
                     time_str = h + ":" + dt_now.strftime("%M")
 
                     date_str = "   " + date_str + "       "
-                    time_str = "  " + time_str + "       "
+                    time_str = "   " + time_str + "       "
                     temp_str = "気温:" + str(ShowContents.Temp) + "   "
                     humidity_str = "湿度:" + str(ShowContents.Humidity) + "   "
                     heatindex_str = "体感:" + str(ShowContents.HeatIndex) + "   "
